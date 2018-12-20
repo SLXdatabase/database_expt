@@ -40,11 +40,17 @@ class Model(object):
     __metaclass__ = ModelMetaclass
 
     def save(self):
-        pass
+        sql = 'insert ignore into %s(%s) values (%s);' % (
+            self.table,
+            ', '.join(self.__dict__.keys()),
+            ', '.join(['%s'] * len(self.__dict__))
+        )
+        return Database.execute(sql, self.__dict__.values())
 
     @classmethod
     def where(cls, **kwargs):
         return Expr(cls, kwargs)
+
 
 
 class Database(object):
