@@ -10,19 +10,53 @@ class Field(object):
 
 class Expr(object):
     def __init__(self, model, kwargs):
-        pass
+        self.model = model
+        self.params = kwargs.values()
+        equations = [key + ' = %s' for key in kwargs.keys()]
+        self.where_expr = 'where ' + ' and '.join(equations) if len(equations) > 0 else ''
 
     def update(self, **kwargs):
-        pass
+        keys = []
+        params = []
+        for key, val in kwargs.iteritems():
+            if val is None or key not in self.model.fields:
+                continue
+            keys.append(key)
+            params.append(val)
+        params.extern(slef.params)
+        sql = 'update %s set %s %s;' % (
+            self.model.table,
+            ', '.join([key + ' = %s' for key in keys]),
+            self.where_expr
+        )
+        return Database.execute(sql, params)
 
     def limit(self, rows, offset=None):
-        pass
+        self.where_expr += 'limit %s%s' % (
+            '%s, ' % offset if offset is not None else '',
+            rows
+        )
+        return self
 
     def select(self):
-        pass
+        sql = 'select %s from %s %s;' % (
+            ', '.join(slef.model.fields.keys()),
+            self.model.table,
+            self.where_expr
+        )
+        for row in Database.execute(sql, self.params).fetchall():
+            instance = self.model()
+            for index, val in enumerate(row):
+                setattr(instance, self.model.fields.keys()[index], val)
+            yield instance
 
     def count(self):
-        pass
+        sql = 'select count(*) from %s %s;' % (
+            self.model.table,
+            self.where_expr
+        )
+        cnt, = Database.execute(sql, self.params).fetchone()
+        return cnt
 
 
 class ModelMetaclass(type):
