@@ -96,27 +96,76 @@ def create_movie_instance(
 
 
 class TestUserModel(unittest.TestCase):
-
+    
     def setUp(self):
-        pass
+        if list(UserModel.where(userid="1998080911").select()) == []:
+            create_user_instance(
+                "1998080911",
+                "strawberry",
+                "Leo980809",
+                u"来电狂想/云南虫谷/无敌破坏王",
+                0
+            )
+        if list(UserModel.where(userid="1999022511").select()) == []:
+            create_user_instance(
+                "1999022511",
+                "mu001999",
+                "woaini18",
+                u"海王/蜘蛛侠",
+                0
+            )
+        if list(UserModel.where(userid="1999080611").select()) == []:
+            create_user_instance(
+                "1999080611",
+                "likemilk",
+                "woaihemilk",
+                u"龙猫/狗十三",
+                0
+            )
 
     def tearDown(self):
-        pass
+        execute_raw_sql("truncate table User;")
 
     def test_instance(self):
-        pass
+        user = UserModel.where(userid="1998080911").select().next()
+
+        self.assertEquals(user.userid, "1998080911")
+        self.assertEquals(user.username, "strawberry")
+        self.assertEquals(user.password, "Leo980809")
+        self.assertEquals(user.record, u"来电狂想/云南虫谷/无敌破坏王")
 
     def test_select(self):
-        pass
+        users = UserModel.where().select()
+
+        for user in users:
+            if user.userid == "1998080911": pass
+            elif user.userid == "1999022511": pass
+            else:
+                self.assertEquals(user.userid, "1999080611")
+                self.assertEquals(user.username, "likemilk")
+                self.assertEquals(user.password, "woaihemilk")
+                self.assertEquals(user.record, u"龙猫/狗十三")
 
     def test_update(self):
-        pass
+        UserModel.where(userid="1998080911").update(record=u"来电狂想/云南虫谷/无敌破坏王")
+        user = UserModel.where(userid="1998080911").select().next()
+
+        self.assertEquals(user.userid, "1998080911")
+        self.assertEquals(user.username, "strawberry")
+        self.assertEquals(user.password, "Leo980809")
+        self.assertEquals(user.record, u"来电狂想/云南虫谷/无敌破坏王")
 
     def test_limit(self):
-        pass
+        users = UserModel.where(username="strawberry").limit(2).select()
+
+        cnt = 0
+        for user in users: cnt += 1
+        self.assertEquals(1, cnt)
 
     def test_count(self):
-        pass
+        cnt = UserModel.where(username="strawberry").count()
+
+        self.assertEquals(1, cnt)
 
 
 class TestScoreModel(unittest.TestCase):
