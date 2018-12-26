@@ -158,8 +158,7 @@ class TestUserModel(unittest.TestCase):
     def test_limit(self):
         users = UserModel.where(username="strawberry").limit(2).select()
 
-        cnt = 0
-        for user in users: cnt += 1
+        cnt = len(list(users))
         self.assertEquals(1, cnt)
 
     def test_count(self):
@@ -169,27 +168,92 @@ class TestUserModel(unittest.TestCase):
 
 
 class TestScoreModel(unittest.TestCase):
-
+    
     def setUp(self):
-        pass
+        if list(ScoreModel.where(userid="1998080911").select()) == []:
+            create_score_instance(
+                "1998080911",
+                "0000000001",
+                "2018-12-1",
+                5,
+                u"电影肥肠好看哈哈哈哈哈哈",
+                1,
+                4
+            )
+        if list(ScoreModel.where(userid="1999022511").select()) == []:
+            create_score_instance(
+                "1999022511",
+                "0000000002",
+                "2018-12-7",
+                14,
+                u"还阔以，嘻嘻",
+                1,
+                3
+            )
+        if list(UserModel.where(userid="1999080611").select()) == []:
+            create_score_instance(
+                "1999080611",
+                "0000000003",
+                "2018-12-4",
+                60,
+                u"龙猫太可爱了",
+                1,
+                5
+            )
 
     def tearDown(self):
-        pass
+        execute_raw_sql("truncate table Score;")
 
     def test_instance(self):
-        pass
+        score = ScoreModel.where(userid="1998080911").select().next()
+
+        self.assertEquals(score.userid, "1998080911")
+        self.assertEquals(score.movieid, "0000000001")
+        self.assertEquals(score.comDate, "2018-12-1")
+        self.assertEquals(score.value, 5)
+        self.assertEquals(score.content, u"电影肥肠好看哈哈哈哈哈哈")
+        self.assertEquals(score.watched, 1)
+        self.assertEquals(score.star, 4)
 
     def test_select(self):
-        pass
+        scores = ScoreModel.where().select()
+
+        for score in scores:
+            if score.userid == "1998080911": pass
+            elif score.userid == "1999022511": pass
+            else:
+                self.assertEquals(score.userid, "1999080611")
+                self.assertEquals(score.movieid, "0000000003")
+                self.assertEquals(score.comDate, "2018-12-4")
+                self.assertEquals(score.value, 60)
+                self.assertEquals(score.content, u"龙猫太可爱了")
+                self.assertEquals(score.watched, 1)
+                self.assertEquals(score.star, 5)
+
 
     def test_update(self):
-        pass
+        ScoreModel.where(userid="1999080611").update(star=2)
+        score = ScoreModel.where(userid="1999080611").select().next()
+
+        self.assertEquals(score.userid, "1999080611")
+        self.assertEquals(score.movieid, "0000000003")
+        self.assertEquals(score.comDate, "2018-12-4")
+        self.assertEquals(score.value, 60)
+        self.assertEquals(score.content, u"龙猫太可爱了")
+        self.assertEquals(score.watched, 1)
+        self.assertEquals(score.star, 2)
 
     def test_limit(self):
-        pass
+        scores = ScoreModel.where(content=u"电影肥肠好看哈哈哈哈哈哈").limit(2).select()
+
+        cnt = 0
+        for score in scores: cnt += 1
+        self.assertEquals(1, cnt)
 
     def test_count(self):
-        pass
+        cnt = ScoreModel.where(content=u"电影肥肠好看哈哈哈哈哈哈").count()
+
+        self.assertEquals(1, cnt)
 
 
 class TestMovieModel(unittest.TestCase):
