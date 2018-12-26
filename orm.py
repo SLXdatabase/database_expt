@@ -23,7 +23,7 @@ class Expr(object):
                 continue
             keys.append(key)
             params.append(val)
-        params.extern(self.params)
+        params.extend(self.params)
         sql = 'update %s set %s %s;' % (
             self.model.table,
             ', '.join([key + ' = %s' for key in keys]),
