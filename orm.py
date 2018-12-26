@@ -23,7 +23,7 @@ class Expr(object):
                 continue
             keys.append(key)
             params.append(val)
-        params.extern(slef.params)
+        params.extern(self.params)
         sql = 'update %s set %s %s;' % (
             self.model.table,
             ', '.join([key + ' = %s' for key in keys]),
@@ -61,13 +61,14 @@ class Expr(object):
 
 class ModelMetaclass(type):
     table = None
-    fields = dict()
 
-    def __init__(self, name, bases, attrs):
-        super(ModelMetaclass, self).__init__(name, bases, attrs)
-        for key, val in self.__dict__.iteritems():
+    def __init__(cls, name, bases, attrs):
+        super(ModelMetaclass, cls).__init__(name, bases, attrs)
+        cls.fields = dict()
+        for key, val in cls.__dict__.iteritems():
             if isinstance(val, Field):
-                self.fields[key] = val
+                val.name = key
+                cls.fields[key] = val
 
 
 class Model(object):
@@ -126,4 +127,4 @@ class Database(object):
 
 
 def execute_raw_sql(sql, params=None):
-    pass
+    return Database.execute(sql, params) if params else Database.execute(sql)
