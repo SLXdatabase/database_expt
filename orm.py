@@ -40,7 +40,7 @@ class Expr(object):
 
     def select(self):
         sql = 'select %s from %s %s;' % (
-            ', '.join(slef.model.fields.keys()),
+            ', '.join(self.model.fields.keys()),
             self.model.table,
             self.where_expr
         )
@@ -100,7 +100,7 @@ class Database(object):
             user=db_config.get('user', 'root'),
             passwd=db_config.get('password', ''),
             db=db_config.get('database', 'test'),
-            charset=db_config.get('charset', 'utf-8')
+            charset=db_config.get('charset', 'utf8')
         )
         cls.connection.autocommit(cls.autocommit)
         cls.db_config.update(db_config)
