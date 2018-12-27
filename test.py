@@ -246,8 +246,7 @@ class TestScoreModel(unittest.TestCase):
     def test_limit(self):
         scores = ScoreModel.where(content=u"电影肥肠好看哈哈哈哈哈哈").limit(2).select()
 
-        cnt = 0
-        for score in scores: cnt += 1
+        cnt = len(list(scores))
         self.assertEquals(1, cnt)
 
     def test_count(self):
@@ -257,27 +256,113 @@ class TestScoreModel(unittest.TestCase):
 
 
 class TestMovieModel(unittest.TestCase):
-
+    
     def setUp(self):
-        pass
+        if list(MovieModel.where(movieid="9999999991").select()) == []:
+            create_movie_instance(
+                "9999999991",
+                u"海王",
+                u"温子仁",
+                u"编剧",
+                u"罗钥轩/海王",
+                u"玄幻",
+                u"中国",
+                u"中文",
+                u"2018-12-2",
+                145,
+                u"海的女儿",
+                u"www.123.com",
+                u"很好看的电影",
+                u"师毓洁/智障",
+                3466,
+                1531,
+                245,
+                456,
+                1000,
+                234
+            )
+        if list(MovieModel.where(movieid="9999999992").select()) == []:
+            create_movie_instance(
+                "9999999992",
+                u"龙猫",
+                u"导演2",
+                u"编剧2",
+                u"罗钥轩/龙",
+                u"动漫",
+                u"日本",
+                u"日语",
+                u"2018-12-23",
+                120,
+                u"dragon",
+                u"www.456.com",
+                u"很不好看的电影",
+                u"师毓洁/猫",
+                5000,
+                2300,
+                40,
+                60,
+                1300,
+                1300
+            )
+        if list(MovieModel.where(movieid="9999999993").select()) == []:
+            create_movie_instance(
+                "9999999993",
+                u"狗十三",
+                u"曹保平",
+                u"编剧3",
+                u"张雪迎/十三",
+                u"爱情",
+                u"中国",
+                u"中文",
+                u"2018-12-25",
+                118,
+                u"狗狗十三啦",
+                u"www.789.com",
+                u"冷冷冷冷了很好看的电影",
+                u"师毓洁/狗子",
+                1800,
+                300,
+                600,
+                300,
+                500,
+                100
+            )
 
     def tearDown(self):
-        pass
+        execute_raw_sql("truncate table Movie;")
 
     def test_instance(self):
-        pass
+        movie = MovieModel.where(movieid="9999999991").select().next()
+
+        self.assertEquals(movie.movieid, "9999999991")
+        self.assertEquals(movie.mname, u"海王")
 
     def test_select(self):
-        pass
+        movies = MovieModel.where().select()
+
+        for movie in movies:
+            if movie.movieid == "9999999991": pass
+            elif movie.movieid == "9999999992": pass
+            else:
+                self.assertEquals(movie.movieid, "9999999993")
+                self.assertEquals(movie.mname, u"狗十三")
 
     def test_update(self):
-        pass
+        MovieModel.where(movieid="9999999991").update(mname=u"海的女儿")
+        movie = MovieModel.where(movieid="9999999991").select().next()
+
+        self.assertEquals(movie.mname, u"海的女儿")
 
     def test_limit(self):
-        pass
+        movies = MovieModel.where(introduction=u"很好看的电影").limit(2).select()
+
+        cnt = len(list(movies))
+        self.assertEquals(1, cnt)
 
     def test_count(self):
-        pass
+        cnt = MovieModel.where(introduction=u"很好看的电影").count()
+
+        self.assertEquals(1, cnt)
 
 
 if __name__ == "__main__":
