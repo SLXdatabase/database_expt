@@ -250,9 +250,9 @@ class TestScoreModel(unittest.TestCase):
         self.assertEquals(1, cnt)
 
     def test_count(self):
-        cnt = ScoreModel.where(content=u"电影肥肠好看哈哈哈哈哈哈").count()
+        cnt = ScoreModel.where(ScoreModel.value > 13).count()
 
-        self.assertEquals(1, cnt)
+        self.assertEquals(2, cnt)
 
 
 class TestMovieModel(unittest.TestCase):
